@@ -1,0 +1,5 @@
+---
+- hosts: authentik
+  become: yes
+  roles:
+    - authentik

@@ -1,0 +1,45 @@
+---
+- name: Check if Docker is installed
+  command: docker --version
+  register: docker_installed
+  ignore_errors: yes
+
+- name: Install Docker and Docker Compose
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+  become: yes
+  when: docker_installed.failed
+
+- name: Ensure Authentik directory exists
+  file:
+    path: "/home/ubuntu/authentik"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+  become: yes
+
+- name: Deploy Docker Compose and environment files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'docker-compose.yml.j2', dest: '/home/ubuntu/authentik/docker-compose.yml' }
+    - { src: '.env.j2', dest: '/home/ubuntu/authentik/.env' }
+  become: yes
+
+- name: Stop Authentik containers
+  shell: docker-compose down
+  args:
+    chdir: /home/ubuntu/authentik
+  become: yes
+
+- name: Start Authentik services
+  shell: docker-compose up -d
+  args:
+    chdir: /home/ubuntu/authentik
+  become: yes

@@ -1,0 +1,8 @@
+---
+postgres_password: ""
+postgres_user: "authentik"
+postgres_db: "authentik"
+authentik_image: "ghcr.io/goauthentik/server:2023.2.2"
+authentik_port_http: 9000
+authentik_port_https: 9443
+secret_key: ""
